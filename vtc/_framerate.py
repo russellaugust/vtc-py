@@ -285,44 +285,42 @@ def _parse_float(src: float, ntsc: Optional[bool]) -> fractions.Fraction:
 FramerateSource = Union[Framerate, str, Tuple[int, int], fractions.Fraction, float]
 """FramerateSource is the set of types a Framerate can be created from"""
 
-
-# We'll use a frozen dataclass for this so the values cannot be changed.
-@dataclasses.dataclass(frozen=True)
 class _Rates:
     """
-    _Rates is used as a one-off na to hold a number of common pre-defined framerates for
+    _Rates is used as a one-off namespace to hold a number of common pre-defined framerates for
     callers to use.
     """
 
-    # 23.98 fps NTSC.
-    F23_98: Framerate = Framerate(23.98, ntsc=True)
+    def __init__(self) -> None:
+        # 23.98 fps NTSC.
+        self.F23_98: Framerate = Framerate(23.98, ntsc=True)
 
-    # 24 fps.
-    F24: Framerate = Framerate(24)
+        # 24 fps.
+        self.F24: Framerate = Framerate(24)
 
-    # 29.97 fps NTSC.
-    F29_97_NDF: Framerate = Framerate(29.97, ntsc=True)
+        # 29.97 fps NTSC.
+        self.F29_97_NDF: Framerate = Framerate(29.97, ntsc=True)
 
-    # 29.97 fps DROP FRAME.
-    F29_97_DF: Framerate = Framerate(29.97, dropframe=True)
+        # 29.97 fps DROP FRAME.
+        self.F29_97_DF: Framerate = Framerate(29.97, dropframe=True)
 
-    # 30 fps NTSC.
-    F30: Framerate = Framerate(30)
+        # 30 fps NTSC.
+        self.F30: Framerate = Framerate(30)
 
-    # 47.95 fps NTSC.
-    F47_95: Framerate = Framerate(47.95, ntsc=True)
+        # 47.95 fps NTSC.
+        self.F47_95: Framerate = Framerate(47.95, ntsc=True)
 
-    # 48 fps NTSC.
-    F48: Framerate = Framerate(48)
+        # 48 fps NTSC.
+        self.F48: Framerate = Framerate(48)
 
-    # 59.94 fps NTSC.
-    F59_94_NDF: Framerate = Framerate(59.94, ntsc=True)
+        # 59.94 fps NTSC.
+        self.F59_94_NDF: Framerate = Framerate(59.94, ntsc=True)
 
-    # 59.94 fps NTSC DROP FRAME.
-    F59_94_DF: Framerate = Framerate(59.94, dropframe=True)
+        # 59.94 fps NTSC DROP FRAME.
+        self.F59_94_DF: Framerate = Framerate(59.94, dropframe=True)
 
-    # 60 fps NTSC.
-    F60: Framerate = Framerate(60)
+        # 60 fps NTSC.
+        self.F60: Framerate = Framerate(60)
 
 
 RATE: _Rates = _Rates()
