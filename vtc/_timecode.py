@@ -1,3 +1,4 @@
+import dataclasses
 import decimal
 import fractions
 from typing import Union, Tuple, Optional
@@ -22,7 +23,11 @@ documentation for details on how different value types as converted.
 """
 
 
+@dataclasses.dataclass(frozen=True, init=False)
 class Timecode:
+    _rate: Framerate = dataclasses.field(hash=False)
+    _value: fractions.Fraction
+
     def __init__(
         self,
         src: TimecodeSource,
@@ -77,8 +82,11 @@ class Timecode:
                 "rate must be set for all Timecode src types except vtc.Timecode",
             )
 
-        self._rate: Framerate = Framerate(rate)
-        self._value: fractions.Fraction = _parse(src, self._rate)
+        parsed_rate = Framerate(rate)
+        parsed_value = _parse(src, parsed_rate)
+
+        object.__setattr__(self, "_rate", parsed_rate)
+        object.__setattr__(self, "_value", parsed_value)
 
     def __repr__(self) -> str:
         """__repr__ prints a timecode as [01:00:00:00 @ [23.98 NTSC]]"""

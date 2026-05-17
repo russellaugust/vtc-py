@@ -3,7 +3,12 @@ import fractions
 from typing import Union, Tuple, Optional
 
 
+@dataclasses.dataclass(frozen=True, init=False)
 class Framerate:
+    _value: fractions.Fraction
+    _ntsc: bool
+    _dropframe: bool
+
     def __init__(
         self,
         src: "FramerateSource",
@@ -56,18 +61,18 @@ class Framerate:
         """
         dropframe, ntsc = _validate_dropframe_ntsc(ntsc, dropframe)
 
-        self._value: fractions.Fraction
-        self._dropframe = dropframe
-        self._ntsc: bool
-
         # Parse tha value into a timebase.
-        self._value = _parse(src, ntsc)
+        value = _parse(src, ntsc)
         if isinstance(src, Framerate):
-            self._dropframe = src.dropframe
+            dropframe = src.dropframe
             ntsc = src.ntsc
 
-        self._ntsc = _infer_ntsc(self._value, ntsc)
-        _validate_drop_frame_value(self._value, self._dropframe)
+        inferred_ntsc = _infer_ntsc(value, ntsc)
+        _validate_drop_frame_value(value, dropframe)
+
+        object.__setattr__(self, "_value", value)
+        object.__setattr__(self, "_ntsc", inferred_ntsc)
+        object.__setattr__(self, "_dropframe", dropframe)
 
     def __str__(self) -> str:
         """Returns the framerate as a fractional string (ex: '24/1')."""

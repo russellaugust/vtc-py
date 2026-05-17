@@ -780,3 +780,39 @@ class TestTimebaseBasics(unittest.TestCase):
 
     def test_equality_usupported_type(self) -> None:
         self.assertNotEqual(vtc.RATE.F24, dict(), "not equal to dict")
+
+    def test_import_succeeds(self) -> None:
+        self.assertIs(__import__("vtc"), vtc)
+
+    def test_hash(self) -> None:
+        framerate = vtc.Framerate(24)
+        equal_framerate = vtc.Framerate("24/1")
+
+        self.assertIsInstance(hash(framerate), int, "framerate is hashable")
+        self.assertEqual(framerate, equal_framerate, "framerates are equal")
+        self.assertEqual(
+            hash(framerate),
+            hash(equal_framerate),
+            "equal framerates have equal hashes",
+        )
+        self.assertEqual(
+            {framerate: "24 fps"}[vtc.RATE.F24],
+            "24 fps",
+            "framerate can be used as a dictionary key",
+        )
+
+    def test_rates_constants_remain_available(self) -> None:
+        self.assertEqual(vtc.RATE.F23_98, vtc.Framerate(23.98, ntsc=True))
+        self.assertEqual(vtc.RATE.F24, vtc.Framerate(24))
+        self.assertEqual(vtc.RATE.F29_97_NDF, vtc.Framerate(29.97, ntsc=True))
+        self.assertEqual(vtc.RATE.F29_97_DF, vtc.Framerate(29.97, dropframe=True))
+        self.assertEqual(vtc.RATE.F30, vtc.Framerate(30))
+        self.assertEqual(vtc.RATE.F47_95, vtc.Framerate(47.95, ntsc=True))
+        self.assertEqual(vtc.RATE.F48, vtc.Framerate(48))
+        self.assertEqual(vtc.RATE.F59_94_NDF, vtc.Framerate(59.94, ntsc=True))
+        self.assertEqual(vtc.RATE.F59_94_DF, vtc.Framerate(59.94, dropframe=True))
+        self.assertEqual(vtc.RATE.F60, vtc.Framerate(60))
+
+    def test_immutable(self) -> None:
+        with self.assertRaises(dataclasses.FrozenInstanceError):
+            vtc.RATE.F24._value = fractions.Fraction(48, 1)  # type: ignore

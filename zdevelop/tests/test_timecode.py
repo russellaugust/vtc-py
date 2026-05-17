@@ -916,6 +916,63 @@ class TestMagicMethods(unittest.TestCase):
             "unsupported type not equal",
         )
 
+    def test_hash(self) -> None:
+        timecode = vtc.Timecode("01:00:00:00", rate=vtc.RATE.F24)
+        equal_timecode = vtc.Timecode(86400, rate=vtc.RATE.F24)
+        cross_rate_timecode = vtc.Timecode(
+            fractions.Fraction(1001, 1),
+            rate=vtc.RATE.F24,
+        )
+        equal_timecode_different_rate = vtc.Timecode(
+            fractions.Fraction(1001, 1),
+            rate=vtc.RATE.F23_98,
+        )
+
+        self.assertIsInstance(hash(timecode), int, "timecode is hashable")
+        self.assertEqual(timecode, equal_timecode, "timecodes are equal")
+        self.assertEqual(
+            hash(timecode),
+            hash(equal_timecode),
+            "equal timecodes have equal hashes",
+        )
+        self.assertEqual(
+            cross_rate_timecode,
+            equal_timecode_different_rate,
+            "timecodes with the same rational value are equal",
+        )
+        self.assertEqual(
+            hash(cross_rate_timecode),
+            hash(equal_timecode_different_rate),
+            "equal timecodes with different rates have equal hashes",
+        )
+        self.assertEqual(
+            {timecode: "one hour"}[equal_timecode],
+            "one hour",
+            "timecode can be used as a dictionary key",
+        )
+
+    def test_immutable(self) -> None:
+        timecode = vtc.Timecode("01:00:00:00", rate=vtc.RATE.F24)
+
+        with self.assertRaises(dataclasses.FrozenInstanceError):
+            timecode._value = fractions.Fraction(0, 1)  # type: ignore
+
+    def test_arithmetic_returns_new_timecode(self) -> None:
+        timecode = vtc.Timecode("01:00:00:00", rate=vtc.RATE.F24)
+        result = timecode + vtc.Timecode("01:00:00:00", rate=vtc.RATE.F24)
+
+        self.assertIsNot(timecode, result, "arithmetic returns a new Timecode")
+        self.assertEqual(
+            timecode,
+            vtc.Timecode("01:00:00:00", rate=vtc.RATE.F24),
+            "source timecode is unchanged",
+        )
+        self.assertEqual(
+            result,
+            vtc.Timecode("02:00:00:00", rate=vtc.RATE.F24),
+            "result has arithmetic applied",
+        )
+
     def test_sort_timecodes(self) -> None:
         """Test that timecodes are sorted correctly through comparison operators."""
 
